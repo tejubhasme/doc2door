@@ -1,6 +1,9 @@
 import { Routes, Route, Navigate, Link } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
-import LoginPage from './pages/LoginPage'\nimport DoctorsPage from './pages/DoctorsPage'\nimport ProfilePage from './pages/ProfilePage'\nimport Navbar from './components/Navbar'
+import LoginPage from './pages/LoginPage'
+import DoctorsPage from './pages/DoctorsPage'
+import ProfilePage from './pages/ProfilePage'
+import Navbar from './components/Navbar'
 import SignupPage from './pages/SignupPage'
 import HomePage from './pages/HomePage'
 import BookPage from './pages/BookPage'
@@ -46,7 +49,9 @@ export default function App() {
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/home" element={<HomePage />} />\n          <Route path="/doctors" element={<DoctorsPage />} />\n          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/doctors" element={<DoctorsPage />} />
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route path="/book/:doctorId" element={<PrivateRoute roles={["PATIENT"]}><BookPage /></PrivateRoute>} />
           <Route path="/appointments" element={<PrivateRoute roles={["PATIENT"]}><AppointmentsPage /></PrivateRoute>} />
           <Route path="/doctor-dashboard" element={<PrivateRoute roles={["DOCTOR"]}><DoctorDashboard /></PrivateRoute>} />
@@ -55,5 +60,3 @@ export default function App() {
     </AuthProvider>
   )
 }
-
-
