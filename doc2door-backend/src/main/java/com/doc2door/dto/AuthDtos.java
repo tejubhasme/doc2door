@@ -44,6 +44,15 @@ public class AuthDtos {
         @NotNull public Integer experienceYears;
         @NotBlank public String city;
     }
+
+    public static class ProfileResponse {
+        public Long id;
+        public String name;
+        public String email;
+        public String role;
+        public String phone;
+        public ProfileResponse(Long id, String name, String email, String role, String phone) {
+            this.id = id; this.name = name; this.email = email; this.role = role; this.phone = phone;
+        }
+    }
 }
-
-
