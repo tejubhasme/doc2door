@@ -6,13 +6,16 @@ import com.doc2door.model.Patient;
 import com.doc2door.repository.DoctorRepository;
 import com.doc2door.repository.PatientRepository;
 import com.doc2door.security.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
 @Service
 public class AuthService {
+
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final PasswordEncoder passwordEncoder;
@@ -26,6 +29,9 @@ public class AuthService {
     }
 
     public Patient signupPatient(AuthDtos.PatientSignupRequest req) {
+        if (patientRepository.findByEmail(req.email).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+        }
         Patient p = new Patient();
         p.setName(req.name);
         p.setEmail(req.email);
@@ -37,6 +43,9 @@ public class AuthService {
     }
 
     public Doctor signupDoctor(AuthDtos.DoctorSignupRequest req) {
+        if (doctorRepository.findByEmail(req.email).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+        }
         Doctor d = new Doctor();
         d.setName(req.name);
         d.setEmail(req.email);
@@ -52,18 +61,16 @@ public class AuthService {
 
     public AuthDtos.TokenResponse login(AuthDtos.LoginRequest req) {
         if ("PATIENT".equalsIgnoreCase(req.role)) {
-            Patient p = patientRepository.findByEmail(req.email).orElseThrow(() -> new RuntimeException("Invalid credentials"));
-            if (!passwordEncoder.matches(req.password, p.getPassword())) throw new RuntimeException("Invalid credentials");
+            Patient p = patientRepository.findByEmail(req.email).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+            if (!passwordEncoder.matches(req.password, p.getPassword())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
             String token = jwtUtil.generateToken(String.valueOf(p.getPatientId()), Map.of("role", "PATIENT"));
             return new AuthDtos.TokenResponse(token, "PATIENT", p.getPatientId(), p.getName());
         } else if ("DOCTOR".equalsIgnoreCase(req.role)) {
-            Doctor d = doctorRepository.findByEmail(req.email).orElseThrow(() -> new RuntimeException("Invalid credentials"));
-            if (!passwordEncoder.matches(req.password, d.getPassword())) throw new RuntimeException("Invalid credentials");
+            Doctor d = doctorRepository.findByEmail(req.email).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+            if (!passwordEncoder.matches(req.password, d.getPassword())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
             String token = jwtUtil.generateToken(String.valueOf(d.getDoctorId()), Map.of("role", "DOCTOR"));
             return new AuthDtos.TokenResponse(token, "DOCTOR", d.getDoctorId(), d.getName());
         }
-        throw new RuntimeException("Invalid role");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role");
     }
 }
-
-
