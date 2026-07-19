@@ -9,11 +9,17 @@ export default function HomePage() {
 
   const load = async () => {
     setLoading(true)
-    const { data } = await api.get('/api/doctors', { params: { city: city || undefined }})
-    setDoctors(data); setLoading(false)
+    try {
+      const { data } = await api.get('/api/doctors', { params: { city: city || undefined }})
+      setDoctors(data)
+    } catch (err) {
+      console.error('Failed to load doctors:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(()=>{ load() }, [])
+  useEffect(() => { load() }, [])
 
   return (
     <div>
@@ -46,5 +52,3 @@ export default function HomePage() {
     </div>
   )
 }
-
-
